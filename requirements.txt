@@ -1,0 +1,6 @@
+beautifulsoup4==4.12.2
+capsolver==1.0.7
+disnake==2.9.1
+Requests==2.31.0
+multidict==6.0.4
+urllib3==1.25.8

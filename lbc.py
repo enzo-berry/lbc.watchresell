@@ -1,4 +1,4 @@
-from config.config import module_error_message
+from config.config import module_error_message, check_period
 
 from threading import Thread    
 from time import sleep
@@ -8,6 +8,7 @@ import html_parser
 import discord_bot
 import disnake
 import datadome
+from datetime import datetime
 
 
 class Lbc:
@@ -105,11 +106,12 @@ class Lbc:
         embed=disnake.Embed(title=article["title"], url=article["url"], color=0x0091ff)
         embed.set_image(url=article["img_src"] if is_valid_image_link(article["img_src"]) else "https://t4.ftcdn.net/jpg/04/70/29/97/360_F_470299797_UD0eoVMMSUbHCcNJCdv2t8B2g1GVqYgs.jpg")
         embed.add_field(name="Prix 💰", value=article["price"], inline=True)
-        embed.add_field(name="Marque ®️", value=article["marque"], inline=True)
+        if article['marque']:
+            embed.add_field(name="Marque ®️", value=article["marque"], inline=True)
         embed.add_field(name="Ville 🏙️", value=article["ville"], inline=True)
         embed.add_field(name="Date 🕒", value=article["date"], inline=True)
+        embed.add_field(name="Etat", value=article["etat"], inline=True)
         embed.add_field(name="Auteur 👤", value=article["author"], inline=True)
-        embed.set_footer(text="BERRY Scraper v1.0")
 
         discord_bot.bot.loop.create_task(
             channel_obj.send(embed=embed)
@@ -142,7 +144,7 @@ class Lbc:
 
         while True and not self.threads[thread_index][1]:
             try:
-                sleep(1)
+                sleep(check_period)
                 dd_cookie = None
                 if discord_channel_id in self.cookies:
                     dd_cookie = self.cookies[discord_channel_id]
@@ -155,7 +157,7 @@ class Lbc:
                     self.cookies[discord_channel_id] = datadome.fetchCookie(filter["url"])
                     self.dump_cookies()
                     continue
-
+                
                 products = html_parser.GetProducts(html)
                 if products == None:
                     continue
@@ -164,11 +166,14 @@ class Lbc:
                 for product in products:
                     if product['id'] > max_id and max_id != 0:
                         self.send_product(product, channel_obj)
+                        print("New ad found sending notification, time:", datetime.now())
                         count += 1
                     local_max_id =  max(local_max_id, product['id'])
                 if local_max_id > max_id:
                     max_id = local_max_id
+                print("No new ad found, time :", datetime.now())
             except Exception as e:
+                print(e)
                 # #send error embed
                 # embed=disnake.Embed(color=0xff0000)
                 # embed.add_field(name="Erreur rencontrée :x:", value=str(e), inline=False)

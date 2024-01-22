@@ -8,11 +8,17 @@ def GetProducts(page_source):
     html = page_source
     soup = BeautifulSoup(html, 'html.parser')
 
+    lifestyle = 1
+    # Mosaic view for lifestyle product
     div_all_products = soup.find("div", {"id": "mosaic_with_owner"})
+    # List view for all other product
+    if not div_all_products:
+        div_all_products = soup.find(lambda tag: tag.name == 'div' and tag.get('class') == ['mb-lg'])
+        lifestyle = 0
     if not div_all_products:
         print("Not found div_all_products")
-        return None
-
+        return None  
+    
     for product_div in div_all_products:
         product = {}
 
@@ -45,21 +51,36 @@ def GetProducts(page_source):
             image = product_a_class.find("img", {"alt": ""})
             product['img_src'] = image.get("src") if image else None
 
-            # Marque
-            marque = product_a_class.find("div", {"data-test-id": "ad-params-light"})
-            product['marque'] = marque.text if marque else None
-
+            # Marque only if lifestyle view
+            if lifestyle == 1:
+                marque = product_a_class.find("div", {"data-test-id": "ad-params-light"})
+                product['marque'] = marque.text
+            else:
+                product['marque'] = None
+            
             # Ville et date
-            parent_ville = product_a_class.find("div", {"class": "mr-md flex-1 min-w-0"})
-            if parent_ville:
-                parent_ville.find_all("span")
-                ville = parent_ville.find_all("span")[1].text
-                date = parent_ville.find_all("span")[2].text
-                product['ville'] = ville
-                product['date'] = date
+            ville = product_a_class.find("span", {"class": "mr-[1.2rem] last:mr-none"})
+            date = product_a_class.find("span", {"class": "relative inline-block w-full before:absolute before:right-full before:top-none before:hidden before:w-[1.2rem] before:text-center before:font-bold before:content-['·'] tiny:w-auto tiny:before:inline-block"})
+            if ville:
+                ville = ville.text
+            if date:
+                date = date.text
+                
+            product['ville'] = ville if ville else "non spécifié"
+            product['date'] = date if date else "non spécifié"
+        
+            etat = product_a_class.find_all("span", attrs={"data-spark-component": "tag"})
+            if etat:
+                if len(etat) == 1:
+                    product['etat'] = etat[0].text
+                else:
+                    # Lifestyle view, ignore the first "a la une" tag
+                    product['etat'] = etat[1].text
+            else:
+                product['etat'] = "Main propre"
 
             #author
-            author = product_a_class.find("div", {"class": "flex items-center gap-sm mb-md"})
+            author = product_a_class.find("div", {"class": "mb-md flex items-center gap-sm"})
             author = author.find("span")
             product['author'] = author.text if author else None
 
