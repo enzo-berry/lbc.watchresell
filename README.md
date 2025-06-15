@@ -1,4 +1,6 @@
 # lbc.watchresell (V2)
+⚠️ Disclaimer: This source is outdated and may no longer function as intended. Use at your own risk.
+
 
 ## Updated version including :
 - Support for list view of Leboncoin website
