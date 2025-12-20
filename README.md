@@ -1,11 +1,10 @@
-# lbc.watchresell (V2)
+# lbc.watchresell
 ⚠️ Disclaimer: This source is outdated and may no longer function as intended. Use at your own risk.
 
+## Overview
+A python project to scrap [leboncoin](https://www.leboncoin.fr) new articles and sending it to a discord channel.
 
-## Updated version including :
-- Support for list view of Leboncoin website
-- Add state field ("etat") to know if the item could be shipped with LBC
-- Script is now dockerized see instructions below
+The anti-scrapping system [datadome](https://datadome.co) is bypassed using [Capsolver](https://www.capsolver.com).
 
 ## How to use
 Build the Docker image from the repo :
@@ -19,7 +18,7 @@ docker create \
 --name lbc \
 lbc-watchresell:v2
 ```
-You have to mount the ***config***  folder with the fallowing files in it:
+You have to mount the ***config***  folder with the following files in it:
 - config.py
   - User agent to emulate the browser
   - proxy (if needed)
@@ -29,14 +28,3 @@ You have to mount the ***config***  folder with the fallowing files in it:
 - lbc.json
   - URL of your LBC search
   - Discord channel id
-
-
-Credits to @enzo-berry
-
-## Original README
-
-A python project to scrap [leboncoin](https://www.leboncoin.fr) new articles and sending it to a discord channel.
-
-The anti-scrapping system [datadome](https://datadome.co) is bypassed using [Capsolver](https://www.capsolver.com).
-
-Do not use this project for production use.
